@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 public partial class MainWindow : Gtk.Window
 {
+    private static ConfigWriter configWriter = new ConfigWriter();
     private Gtk.ScrolledWindow scrolledWindow;
     private Gtk.Layout layout;
 
@@ -31,6 +33,13 @@ public partial class MainWindow : Gtk.Window
     private static bool IsSuperuser()
     {
         return !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SUDO_USER"));
+    }
+
+    public static void ApplyConfig(ConfigWriter configWriter, BlinkstickController blinkstick)
+    {   
+        Console.WriteLine("Applying config");
+        var loadedConfig = configWriter.loadedConfig;
+        blinkstick.SetColorAll(0, new byte[] { (byte)(loadedConfig.StartupColor.Item1), (byte)loadedConfig.StartupColor.Item2, (byte)loadedConfig.StartupColor.Item3 });
     }
 
     private Button AddButton(Layout layout, string text, int x, int y, int width, int height, EventHandler OnButtonClicked)
@@ -130,12 +139,26 @@ public partial class MainWindow : Gtk.Window
 
         }
 
+        // button to save config
+        AddButton(layout, "Save Config", 100, 300, 400, 25, (sender, e) => 
+        {
+            var config = new Config
+            {
+                StartupColor = new Tuple<int, int, int>((int)SliderRed.Value, (int)SliderGreen.Value, (int)SliderBlue.Value)
+            };
+            configWriter.Save(config);
+        });
 
         scrolledWindow.Add(layout);
         Add(scrolledWindow);
 
         // Connect delete event
         DeleteEvent += OnDeleteEvent;
+
+        // Load config
+        Console.WriteLine("Loading config");
+        ApplyConfig(configWriter, blinkstick);
+
 
     }
 
@@ -157,6 +180,7 @@ public partial class MainWindow : Gtk.Window
             Console.WriteLine("Please run this program as superuser.");
             return;
         }
+
 
         Application.Init();
         MainWindow win = new MainWindow
