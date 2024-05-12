@@ -89,7 +89,7 @@ public partial class MainWindow : Gtk.Window
     public MainWindow() : base(Gtk.WindowType.Toplevel)
     {
         // Set window properties
-        Title = "Amogus Window";
+        Title = "BlinkStick GTK Control Panel";
         DefaultWidth = 600;
         DefaultHeight = 400;
 
