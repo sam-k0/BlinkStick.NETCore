@@ -43,6 +43,7 @@ public partial class MainWindow : Gtk.Window
         return button;
     }
 
+    [Obsolete]
     private HScale AddSliderWithLabel(Layout layout, string label, int x, int y, int width, int height, int min, int max, int step, EventHandler OnValueChanged)
     {
         var labelWidget = new Gtk.Label(label);
@@ -60,6 +61,7 @@ public partial class MainWindow : Gtk.Window
         return slider;
     }
 
+    [Obsolete]
     private void SetColorButtonTextColor()
     {
         if (setColorButton == null || SliderBlue == null || SliderGreen == null || SliderRed == null)
@@ -146,6 +148,7 @@ public partial class MainWindow : Gtk.Window
         a.RetVal = true;
     }
 
+    [Obsolete]
     public static void Main(string[] args)
     {
         if (!IsSuperuser())
