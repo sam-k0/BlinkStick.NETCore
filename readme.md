@@ -10,7 +10,7 @@ Program must be run as superuser, as hidapi otherwise has insufficient access ri
 Dependencies are:
 - gtksharp
 - hidapi.net
-- (unused) newtonsoft.json
+- newtonsoft.json
 
 
 
