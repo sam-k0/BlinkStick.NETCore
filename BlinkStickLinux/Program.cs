@@ -35,11 +35,31 @@ public partial class MainWindow : Gtk.Window
         return !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SUDO_USER"));
     }
 
+    private static void ShowPopup(string message, string title, MessageType messageType)
+    {
+        var dialog = new MessageDialog(null, DialogFlags.Modal, messageType, ButtonsType.Ok, message)
+        {
+            Title = title
+        };
+        dialog.Run();
+        dialog.Destroy();
+    }
     public static void ApplyConfig(ConfigWriter configWriter, BlinkstickController blinkstick)
     {   
         Console.WriteLine("Applying config");
         var loadedConfig = configWriter.loadedConfig;
-        blinkstick.SetColorAll(0, new byte[] { (byte)(loadedConfig.StartupColor.Item1), (byte)loadedConfig.StartupColor.Item2, (byte)loadedConfig.StartupColor.Item3 });
+        if (loadedConfig == null)
+        {
+            Console.WriteLine("No config found, using default values");
+            return;
+        }
+        if(loadedConfig.StartupColor == null)
+        {
+            Console.WriteLine("No startup color found, using default values");
+            return;
+        }
+
+        blinkstick.SetColorAll(0, new byte[] { (byte)loadedConfig.StartupColor.Item1, (byte)loadedConfig.StartupColor.Item2, (byte)loadedConfig.StartupColor.Item3 });
     }
 
     private Button AddButton(Layout layout, string text, int x, int y, int width, int height, EventHandler OnButtonClicked)
@@ -149,6 +169,25 @@ public partial class MainWindow : Gtk.Window
             configWriter.Save(config);
         });
 
+        Button saveOnExit = AddButton(layout, "Toggle Turn Off On Exit", 100, 350, 400, 25, (sender, e) => 
+        {
+            var config = configWriter.loadedConfig;
+            if (config == null)
+            {
+                return;
+            }
+            config.TurnOffOnExit = !config.TurnOffOnExit;
+            configWriter.Save(config);
+            // Update button label by args (sender, e)
+            Button self = (Button)sender;
+            if(self != null)
+            {
+                self.Label = config.TurnOffOnExit == true ? "Turn Off On Exit: On" : "Turn Off On Exit: Off";
+            }
+            
+        });
+        saveOnExit.Label = configWriter.loadedConfig.TurnOffOnExit == true ? "Turn Off On Exit: On" : "Turn Off On Exit: Off";
+
         scrolledWindow.Add(layout);
         Add(scrolledWindow);
 
@@ -165,6 +204,11 @@ public partial class MainWindow : Gtk.Window
     protected void OnDeleteEvent(object sender, DeleteEventArgs a)
     {
         // Free resources and quit application
+        if (configWriter.loadedConfig.TurnOffOnExit == true)
+        {
+            blinkstick.SetColorAll(0, new byte[] { 0, 0, 0 }); 
+        }
+
         blinkstick.Shutdown();
 
         Application.Quit();
@@ -174,15 +218,15 @@ public partial class MainWindow : Gtk.Window
     [Obsolete]
     public static void Main(string[] args)
     {
+        Application.Init();
+
         if (!IsSuperuser())
         {
             // Show error popup
             Console.WriteLine("Please run this program as superuser.");
+            ShowPopup("Please run this program as superuser.", "Error", MessageType.Error);
             return;
         }
-
-
-        Application.Init();
         MainWindow win = new MainWindow
         {
             // disable resizing

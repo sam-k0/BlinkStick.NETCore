@@ -43,7 +43,6 @@ public class BlinkstickController
 
     public void Shutdown()
     {
-        SetColorAll(0, new byte[] { 0, 0, 0 }); 
         Hid.Exit();
     }
 

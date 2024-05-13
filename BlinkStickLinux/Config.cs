@@ -4,6 +4,7 @@ using System.Diagnostics;
 public class Config
 {
     public Tuple<int, int, int> ?StartupColor { get; set; }
+    public bool ?TurnOffOnExit { get; set; }
 }
 
 public class ConfigWriter
@@ -26,7 +27,8 @@ public class ConfigWriter
             // Create a new config file with default values 
             var defaultConfig = new Config
             {
-                StartupColor = new Tuple<int, int, int>(255, 0, 0)
+                StartupColor = new Tuple<int, int, int>(255, 0, 0),
+                TurnOffOnExit = true
             };
 
             File.WriteAllText(GetApplicationPath()+"/config.json", JsonConvert.SerializeObject(defaultConfig));
