@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 public partial class MainWindow : Gtk.Window
 {
     private static ConfigWriter configWriter = new ConfigWriter();
@@ -15,6 +16,15 @@ public partial class MainWindow : Gtk.Window
     private HScale SliderGreen;
     private HScale SliderBlue;
 
+// Import setuid and setgid functions from libc
+    [DllImport("libc")]
+    private static extern int setuid(uint uid);
+    [DllImport("libc")]
+    private static extern int setgid(uint gid);
+    [DllImport("libc")]
+    private static extern uint getuid();
+    [DllImport("libc")]
+    private static extern uint getgid();
 
     // Add some preset colors
     List<(string, byte[])> presetColors = new List<(string, byte[])> {
