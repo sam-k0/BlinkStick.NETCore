@@ -42,7 +42,8 @@ public class ArgumentParser
         {"--help", "all|color|help|about"},
         {"--sudo", "true|false"},
         // shutdown can be any string
-        {"--shutdown", ".*"}
+        {"--shutdown", ".*"},
+        {"--exit", ".*"}
     };
 
 
@@ -82,7 +83,8 @@ public class ArgumentParser
                 "-h" => ArgumentType.Help,
                 "--help" => ArgumentType.Help,
                 "--sudo" => ArgumentType.Sudo,
-                "--shutdown" => ArgumentType.Shutdown,
+                "--shutdown" => ArgumentType.Shutdown, // both lead to the same action
+                "--exit" => ArgumentType.Shutdown,
 
                 _ => throw new ArgumentException($"Invalid argument (err2): {args[i]}")
             };
