@@ -16,7 +16,8 @@ public class ArgumentParser
     public enum ArgumentType
     {
         Color,
-        Help
+        Help,
+        Sudo
     }
 
     public struct Argument{
@@ -37,7 +38,8 @@ public class ArgumentParser
         {"-c", @"\b(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\s*,\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\s*,\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\b"},
         {"--color", @"\b(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\s*,\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\s*,\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\b"},
         {"-h", "all|color|help|about"},
-        {"--help", "all|color|help|about"}
+        {"--help", "all|color|help|about"},
+        {"--sudo", "true|false"}
     };
 
 
@@ -56,7 +58,7 @@ public class ArgumentParser
         {
             if (!argumentFormat.ContainsKey(args[i]))
             {
-                throw new ArgumentException($"Invalid argument: {args[i]}");
+                throw new ArgumentException($"Invalid argument (err1): {args[i]}");
             }
 
             // Check if the value of the argument is valid
@@ -76,16 +78,12 @@ public class ArgumentParser
                 "--color" => ArgumentType.Color,
                 "-h" => ArgumentType.Help,
                 "--help" => ArgumentType.Help,
-                _ => throw new ArgumentException($"Invalid argument: {args[i]}")
+                "--sudo" => ArgumentType.Sudo,
+
+                _ => throw new ArgumentException($"Invalid argument (err2): {args[i]}")
             };
 
             ValidArguments.Add(new Argument(args[i], type, args[i + 1]));
-        }
-
-        // Print all arguments
-        for (int i = 0; i < args.Length; i += 2)
-        {
-            Console.WriteLine($"Option: {args[i]} Value: {args[i + 1]}");
         }
     }
 }

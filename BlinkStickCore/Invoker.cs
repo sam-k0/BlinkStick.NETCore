@@ -1,7 +1,7 @@
 public class Invoker
 {
     // function pointer prototype
-    public delegate void FunctionPointer(string[] args);
+    public delegate bool FunctionPointer(string[] args, BlinkstickController controller);
     public Dictionary<ArgumentParser.ArgumentType, FunctionPointer> functions = new();
     public Invoker()
     {}
@@ -14,11 +14,11 @@ public class Invoker
         functions.Add(type, function);
     }
 
-    public int InvokeMethod(ArgumentParser.Argument arg)
+    public int InvokeMethod(ArgumentParser.Argument arg, BlinkstickController controller)
     {
         if (functions.ContainsKey(arg.type))
         {
-            functions[arg.type](arg.value.Split(",")); // call the function with the arguments
+            functions[arg.type](arg.value.Split(","), controller); // call the function with the arguments
             return 0;
         }
 
