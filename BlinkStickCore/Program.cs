@@ -36,11 +36,15 @@ var executableArguments = argumentParser.ValidArguments.Aggregate("", (acc, arg)
     return acc + $"{argName} {argValue} ";
 });
 
-System.Console.WriteLine("Executable path: {0}", executablePath);
-System.Console.WriteLine("Executable arguments: {0}", executableArguments);
+//System.Console.WriteLine("Executable path: {0}", executablePath);
+//System.Console.WriteLine("Executable arguments: {0}", executableArguments);
 
 // add functions to the invoker
 invoker.AddFunction(ArgumentParser.ArgumentType.Color, BlinkStickCore.Commands.SetColor);
+invoker.AddFunction(ArgumentParser.ArgumentType.Help, BlinkStickCore.Commands.Help);
+invoker.AddFunction(ArgumentParser.ArgumentType.Sudo, BlinkStickCore.Commands.Sudo);
+
+
 
 // Either run the executable as root or actually run the functions
 if (!IsSuperuser())
@@ -74,8 +78,18 @@ if (!IsSuperuser())
 }
 else
 {
+    // Get a controller
     BlinkstickController controller = new BlinkstickController();
-    Console.WriteLine("Running as root");
+    if (controller.DeviceValid())
+    {
+        Console.WriteLine($"Found device: {controller.DeviceProductName()}");
+    }
+    else
+    {
+        Console.WriteLine("Device is not valid.");
+        return -1;
+    }
+
     // invoke the functions
     argumentParser.ValidArguments.ForEach(arg =>
     {

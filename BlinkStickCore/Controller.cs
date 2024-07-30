@@ -1,3 +1,4 @@
+using System.Diagnostics.Contracts;
 using System.Threading.Channels;
 using HidApi;
 public class BlinkstickController
@@ -12,7 +13,16 @@ public class BlinkstickController
     public BlinkstickController()
     {
         _device = new Device(VendorId, ProductId);
-        Console.WriteLine(_device.GetManufacturer());
+    }
+
+    public bool DeviceValid()
+    {
+        return _device != null;
+    }
+
+    public string DeviceProductName()
+    {
+        return _device.GetProduct();
     }
 
     static byte[] BuildControlMessage(int channel, int index, byte[] color)
