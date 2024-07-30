@@ -17,7 +17,8 @@ public class ArgumentParser
     {
         Color,
         Help,
-        Sudo
+        Sudo,
+        Shutdown
     }
 
     public struct Argument{
@@ -39,7 +40,9 @@ public class ArgumentParser
         {"--color", @"\b(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\s*,\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\s*,\s*(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\b"},
         {"-h", "all|color|help|about"},
         {"--help", "all|color|help|about"},
-        {"--sudo", "true|false"}
+        {"--sudo", "true|false"},
+        // shutdown can be any string
+        {"--shutdown", ".*"}
     };
 
 
@@ -47,7 +50,7 @@ public class ArgumentParser
 
     public ArgumentParser(string[] args)
     {
-        // Check if the argument list is valid: Each option must have a value
+        // Check if the argument list is valid: Each option must have a value except for the shutdown command
         if (args.Length % 2 != 0)
         {
             throw new ArgumentException("Invalid argument list");
@@ -79,6 +82,7 @@ public class ArgumentParser
                 "-h" => ArgumentType.Help,
                 "--help" => ArgumentType.Help,
                 "--sudo" => ArgumentType.Sudo,
+                "--shutdown" => ArgumentType.Shutdown,
 
                 _ => throw new ArgumentException($"Invalid argument (err2): {args[i]}")
             };

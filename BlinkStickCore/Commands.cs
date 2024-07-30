@@ -13,7 +13,7 @@ namespace BlinkStickCore
                 Console.WriteLine("Invalid number of arguments when calling SetColor: " + arg.Length);
                 return false;
             }
-            
+
             controller.SetColorAll(0, new byte[] { byte.Parse(arg[0]), byte.Parse(arg[1]), byte.Parse(arg[2]) });
 
             return true;
@@ -25,9 +25,9 @@ namespace BlinkStickCore
             return true;
         }
 
-        public static bool Exit(string[] arg, BlinkstickController controller)
+        public static bool Shutdown(string[] arg, BlinkstickController controller)
         {
-            Console.WriteLine("Exit called");
+            controller.SetColorAll(0, [0, 0, 0]);
             return true;
         }
 
@@ -45,7 +45,7 @@ namespace BlinkStickCore
 
         public static bool Sudo(string[] arg, BlinkstickController controller)
         {
-            Console.WriteLine("Success when creating the sudo process.");
+            // just return true. The sudo argument is only used to run the program as root
             return true;
         }
 

@@ -43,7 +43,7 @@ var executableArguments = argumentParser.ValidArguments.Aggregate("", (acc, arg)
 invoker.AddFunction(ArgumentParser.ArgumentType.Color, BlinkStickCore.Commands.SetColor);
 invoker.AddFunction(ArgumentParser.ArgumentType.Help, BlinkStickCore.Commands.Help);
 invoker.AddFunction(ArgumentParser.ArgumentType.Sudo, BlinkStickCore.Commands.Sudo);
-
+invoker.AddFunction(ArgumentParser.ArgumentType.Shutdown, BlinkStickCore.Commands.Shutdown);
 
 
 // Either run the executable as root or actually run the functions
@@ -93,9 +93,17 @@ else
     // invoke the functions
     argumentParser.ValidArguments.ForEach(arg =>
     {
-        invoker.InvokeMethod(arg, controller);
+        if(invoker.InvokeMethod(arg, controller) == true)
+        {
+            Console.WriteLine($"Success executing command for arg: {arg.type}");
+        }
+        else
+        {
+            Console.WriteLine($"Failed to execute command for arg: {arg.type}");
+        }
     });
 
+    controller.Shutdown();
 }
 
 

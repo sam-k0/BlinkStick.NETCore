@@ -14,15 +14,13 @@ public class Invoker
         functions.Add(type, function);
     }
 
-    public int InvokeMethod(ArgumentParser.Argument arg, BlinkstickController controller)
+    public bool InvokeMethod(ArgumentParser.Argument arg, BlinkstickController controller)
     {
         if (functions.ContainsKey(arg.type))
         {
-            functions[arg.type](arg.value.Split(","), controller); // call the function with the arguments
-            return 0;
+            return functions[arg.type](arg.value.Split(","), controller); // call the function with the arguments
         }
-
-        return 0;
+        return false;
     }
 
 }
