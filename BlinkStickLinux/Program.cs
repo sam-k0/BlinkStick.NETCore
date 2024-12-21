@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Gst;
 public partial class MainWindow : Gtk.Window
 {
     private static ConfigWriter configWriter = new ConfigWriter();
@@ -45,7 +46,7 @@ public partial class MainWindow : Gtk.Window
         return !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SUDO_USER"));
     }
 
-    private static void ShowPopup(string message, string title, MessageType messageType)
+    private static void ShowPopup(string message, string title, Gtk.MessageType messageType)
     {
         var dialog = new MessageDialog(null, DialogFlags.Modal, messageType, ButtonsType.Ok, message)
         {
@@ -221,20 +222,21 @@ public partial class MainWindow : Gtk.Window
 
         blinkstick.Shutdown();
 
-        Application.Quit();
+        Gtk.Application.Quit();
         a.RetVal = true;
     }
 
     [Obsolete]
     public static void Main(string[] args)
     {
-        Application.Init();
+        Gtk.Application.Init();
 
         if (!IsSuperuser())
         {
             // Show error popup
             Console.WriteLine("Please run this program as superuser.");
-            ShowPopup("Please run this program as superuser.", "Error", MessageType.Error);
+            ShowPopup("Please run this program as superuser.", "Error", Gtk.MessageType.Error);
+
             return;
         }
         MainWindow win = new MainWindow
@@ -243,6 +245,6 @@ public partial class MainWindow : Gtk.Window
             Resizable = false
         };
         win.ShowAll(); // Show all widgets
-        Application.Run();
+        Gtk.Application.Run();
     }
 }

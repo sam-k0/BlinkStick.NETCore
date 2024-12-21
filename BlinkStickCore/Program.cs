@@ -44,6 +44,7 @@ invoker.AddFunction(ArgumentParser.ArgumentType.Color, BlinkStickCore.Commands.S
 invoker.AddFunction(ArgumentParser.ArgumentType.Help, BlinkStickCore.Commands.Help);
 invoker.AddFunction(ArgumentParser.ArgumentType.Sudo, BlinkStickCore.Commands.Sudo);
 invoker.AddFunction(ArgumentParser.ArgumentType.Shutdown, BlinkStickCore.Commands.Shutdown);
+invoker.AddFunction(ArgumentParser.ArgumentType.About, BlinkStickCore.Commands.About);
 
 
 // Either run the executable as root or actually run the functions

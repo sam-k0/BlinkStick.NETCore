@@ -18,7 +18,8 @@ public class ArgumentParser
         Color,
         Help,
         Sudo,
-        Shutdown
+        Shutdown,
+        About
     }
 
     public struct Argument{
@@ -43,7 +44,8 @@ public class ArgumentParser
         {"--sudo", "true|false"},
         // shutdown can be any string
         {"--shutdown", ".*"},
-        {"--exit", ".*"}
+        {"--exit", ".*"},
+        {"--info", ".*"}
     };
 
 
@@ -85,6 +87,7 @@ public class ArgumentParser
                 "--sudo" => ArgumentType.Sudo,
                 "--shutdown" => ArgumentType.Shutdown, // both lead to the same action
                 "--exit" => ArgumentType.Shutdown,
+                "--info" => ArgumentType.About,
 
                 _ => throw new ArgumentException($"Invalid argument (err2): {args[i]}")
             };
