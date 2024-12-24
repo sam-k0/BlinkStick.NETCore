@@ -1,9 +1,9 @@
-## Simple Blinkstick (Flex) client written in C# for Linux
+## BlinkStick Utilities
 
-Currently, only changing colors on all LEDs at once is supported.
-Colors can be mixed by RGB values or presets.
+- BlinkStickNETCore: Cross-platform .NET Core library for BlinkStick (Flex, Mini, Strip)
+- BlinkStickLinux: Linux GUI using Gtk# for controlling BlinkStick devices
+- BlinkStickCLI: CLI for controlling BlinkStick devices
 
-Program must be run as superuser, as hidapi otherwise has insufficient access rights.
 
 ### Building
 

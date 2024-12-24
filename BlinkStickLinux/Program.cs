@@ -13,26 +13,16 @@ public partial class MainWindow : Gtk.Window
     private HScale SliderGreen;
     private HScale SliderBlue;
 
-// Import setuid and setgid functions from libc
-    [DllImport("libc")]
-    private static extern int setuid(uint uid);
-    [DllImport("libc")]
-    private static extern int setgid(uint gid);
-    [DllImport("libc")]
-    private static extern uint getuid();
-    [DllImport("libc")]
-    private static extern uint getgid();
-
     // Add some preset colors
     List<(string, byte[])> presetColors = new List<(string, byte[])> {
-        ("Red", new byte[] { 255, 0, 0 }),
-        ("Green", new byte[] { 0, 255, 0 }),
-        ("Blue", new byte[] { 0, 0, 255 }),
-        ("Yellow", new byte[] { 255, 255, 0 }),
-        ("Purple", new byte[] { 255, 0, 255 }),
-        ("Cyan", new byte[] { 0, 255, 255 }),
-        ("White", new byte[] { 255, 255, 255 }),
-        ("Black", new byte[] { 0, 0, 0 })
+        ("Red", [255, 0, 0]),
+        ("Green", [0, 255, 0]),
+        ("Blue", [0, 0, 255]),
+        ("Yellow", [255, 255, 0]),
+        ("Purple", [255, 0, 255]),
+        ("Cyan", [0, 255, 255]),
+        ("White", [255, 255, 255]),
+        ("Off", [0, 0, 0])
     };
 
     private BlinkStickFlex blinkstick = new BlinkStickFlex();
