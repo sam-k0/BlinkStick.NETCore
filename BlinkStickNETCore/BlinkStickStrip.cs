@@ -5,7 +5,7 @@ public class BlinkStickStrip : ControllerBase
 {
     protected override ushort VendorId => 0x20a0;
     protected override ushort ProductId => 0x41e5;
-    protected override int NUM_LEDS => 8;
+    protected override ushort NUM_LEDS => 8;
 
     public BlinkStickStrip()
     {

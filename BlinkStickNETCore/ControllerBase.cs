@@ -4,7 +4,7 @@ public abstract class ControllerBase {
     protected HidApi.Device? _device;
     protected abstract ushort VendorId {get;}
     protected abstract ushort ProductId {get;}
-    protected abstract int NUM_LEDS {get;}
+    protected abstract ushort NUM_LEDS {get;}
     
     protected byte[] BuildControlMessage(int channel, int index, byte[] color)
     {
@@ -24,5 +24,9 @@ public abstract class ControllerBase {
     }
 
     public abstract void Shutdown();
+    public ushort GetNumLeds()
+    {
+        return NUM_LEDS;
+    }
 
 }

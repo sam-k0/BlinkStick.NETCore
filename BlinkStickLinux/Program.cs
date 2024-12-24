@@ -1,5 +1,6 @@
 ﻿using Gtk;
 using System.Runtime.InteropServices;
+using BlinkStickNETCore;
 public partial class MainWindow : Gtk.Window
 {
     private static ConfigWriter configWriter = new ConfigWriter();
@@ -34,7 +35,7 @@ public partial class MainWindow : Gtk.Window
         ("Black", new byte[] { 0, 0, 0 })
     };
 
-    private BlinkstickController blinkstick = new BlinkstickController();
+    private BlinkStickFlex blinkstick = new BlinkStickFlex();
 
     private static bool IsSuperuser()
     {
@@ -50,7 +51,7 @@ public partial class MainWindow : Gtk.Window
         dialog.Run();
         dialog.Destroy();
     }
-    public static void ApplyConfig(ConfigWriter configWriter, BlinkstickController blinkstick)
+    public static void ApplyConfig(ConfigWriter configWriter, BlinkStickFlex blinkstick)
     {   
         Console.WriteLine("Applying config");
         var loadedConfig = configWriter.loadedConfig;
@@ -64,6 +65,7 @@ public partial class MainWindow : Gtk.Window
             Console.WriteLine("No startup color found, using default values");
             return;
         }
+
 
         blinkstick.SetColorAll(0, new byte[] { (byte)loadedConfig.StartupColor.Item1, (byte)loadedConfig.StartupColor.Item2, (byte)loadedConfig.StartupColor.Item3 });
     }
