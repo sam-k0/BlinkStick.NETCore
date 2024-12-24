@@ -1,10 +1,5 @@
 ﻿using Gtk;
-using System.Collections.Generic;
-using Newtonsoft.Json;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Gst;
 public partial class MainWindow : Gtk.Window
 {
     private static ConfigWriter configWriter = new ConfigWriter();
@@ -183,7 +178,7 @@ public partial class MainWindow : Gtk.Window
         Button saveOnExit = AddButton(layout, "Toggle Turn Off On Exit", 100, 350, 400, 25, (sender, e) => 
         {
             var config = configWriter.loadedConfig;
-            if (config == null)
+            if (config == null || sender == null)
             {
                 return;
             }

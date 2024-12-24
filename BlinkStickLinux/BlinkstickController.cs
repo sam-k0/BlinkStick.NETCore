@@ -17,13 +17,7 @@ public class BlinkstickController
 
     static byte[] BuildControlMessage(int channel, int index, byte[] color)
     {
-        byte[] msg = new byte[MSG_PACKET_SIZE];
-        msg[0] = 0x05;
-        msg[1] = (byte)channel;
-        msg[2] = (byte)index;
-        msg[3] = color[0];
-        msg[4] = color[1];
-        msg[5] = color[2];
+        byte[] msg = [0x05, (byte)channel, (byte)index, color[0], color[1], color[2]];
         return msg;
     }
 
