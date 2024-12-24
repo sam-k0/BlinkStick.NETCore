@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlinkStickLinux", "BlinkStickLinux\BlinkStickLinux.csproj", "{19B42E5A-AEA6-4154-A1EA-476025EC827C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlinkStickCore", "BlinkStickCore\BlinkStickCore.csproj", "{BAB3D9CF-25F5-48DE-80F8-F1E553365A9D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlinkStickCLI", "BlinkStickCLI\BlinkStickCLI.csproj", "{BAB3D9CF-25F5-48DE-80F8-F1E553365A9D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlinkStickNETCore", "BlinkStickNETCore\BlinkStickNETCore.csproj", "{D65D843D-F0F9-4B82-B48C-F18509565065}"
 EndProject
