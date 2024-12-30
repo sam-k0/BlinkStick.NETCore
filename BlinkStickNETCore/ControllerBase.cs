@@ -12,8 +12,12 @@ public abstract class ControllerBase {
         return msg;
     }
 
-    protected void SetColor(int channel, int num, byte[] color)
+    public void SetColor(int channel, int num, byte[] color)
     {
+        if (num >= NUM_LEDS)
+        {
+            throw new Exception("Index out of range");
+        }
         if (_device == null)
         {
             throw new Exception("Device not initialized");

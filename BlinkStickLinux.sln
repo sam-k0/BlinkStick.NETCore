@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlinkStickCLI", "BlinkStick
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlinkStickNETCore", "BlinkStickNETCore\BlinkStickNETCore.csproj", "{D65D843D-F0F9-4B82-B48C-F18509565065}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Effects", "Effects\Effects.csproj", "{AC972294-9691-43B9-A6A3-E1E642EDF6C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{D65D843D-F0F9-4B82-B48C-F18509565065}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D65D843D-F0F9-4B82-B48C-F18509565065}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D65D843D-F0F9-4B82-B48C-F18509565065}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC972294-9691-43B9-A6A3-E1E642EDF6C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC972294-9691-43B9-A6A3-E1E642EDF6C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC972294-9691-43B9-A6A3-E1E642EDF6C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC972294-9691-43B9-A6A3-E1E642EDF6C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
