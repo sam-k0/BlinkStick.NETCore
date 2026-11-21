@@ -1,48 +1,319 @@
-﻿using Gtk;
-using System.Runtime.InteropServices;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Layout;
+using Avalonia.Media;
+using Avalonia.Themes.Fluent;
 using BlinkStickNETCore;
-public partial class MainWindow : Gtk.Window
+
+public partial class MainWindow : Window
 {
-    private static ConfigWriter configWriter = new ConfigWriter();
-    private Gtk.ScrolledWindow scrolledWindow;
-    private Gtk.Layout layout;
+    private readonly ConfigWriter configWriter = new();
+    private readonly BlinkStickFlex blinkstick = new();
 
-    private Button setColorButton;
+    private Slider sliderRed = null!;
+    private Slider sliderGreen = null!;
+    private Slider sliderBlue = null!;
+    private TextBlock valueRed = null!;
+    private TextBlock valueGreen = null!;
+    private TextBlock valueBlue = null!;
 
-    private HScale SliderRed;
-    private HScale SliderGreen;
-    private HScale SliderBlue;
+    private Border previewSwatch = null!;
+    private TextBlock previewHex = null!;
+    private TextBlock previewRgb = null!;
+    private Button setColorButton = null!;
 
-    // Add some preset colors
-    List<(string, byte[])> presetColors = new List<(string, byte[])> {
-        ("Red", [255, 0, 0]),
-        ("Green", [0, 255, 0]),
-        ("Blue", [0, 0, 255]),
-        ("Yellow", [255, 255, 0]),
-        ("Purple", [255, 0, 255]),
-        ("Cyan", [0, 255, 255]),
-        ("White", [255, 255, 255]),
-        ("Off", [0, 0, 0])
+    // Preset colors: name, R, G, B
+    private static readonly (string, byte, byte, byte)[] presetColors =
+    {
+        ("Red", 255, 0, 0),
+        ("Green", 0, 255, 0),
+        ("Blue", 0, 0, 255),
+        ("Yellow", 255, 255, 0),
+        ("Purple", 255, 0, 255),
+        ("Cyan", 0, 255, 255),
+        ("White", 255, 255, 255),
+        ("Off", 0, 0, 0)
     };
 
-    private BlinkStickFlex blinkstick = new BlinkStickFlex();
-
-    private static bool IsSuperuser()
+    public MainWindow()
     {
-        return !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SUDO_USER"));
-    }
+        Title = "BlinkStick Control Panel";
+        Width = 720;
+        Height = 760;
+        MinWidth = 560;
 
-    private static void ShowPopup(string message, string title, Gtk.MessageType messageType)
-    {
-        var dialog = new MessageDialog(null, DialogFlags.Modal, messageType, ButtonsType.Ok, message)
+        BuildPreview();
+        var slidersPanel = BuildSliders();
+        BuildSetColorButton();
+
+        // Presets header
+        var presetsHeader = new TextBlock
         {
-            Title = title
+            Text = "Presets",
+            FontSize = 14,
+            FontWeight = FontWeight.SemiBold,
+            Margin = new Thickness(2, 12, 0, 0)
         };
-        dialog.Run();
-        dialog.Destroy();
+
+        // Preset swatches
+        var presetsPanel = new WrapPanel
+        {
+            Orientation = Orientation.Horizontal
+        };
+        foreach (var (colorName, r, g, b) in presetColors)
+        {
+            var color = MakeColor(r, g, b);
+            var presetButton = new Button
+            {
+                Content = colorName,
+                Width = 132,
+                Height = 56,
+                Background = new SolidColorBrush(color),
+                Foreground = new SolidColorBrush(Contrast(color)),
+                Margin = new Thickness(6)
+            };
+            presetButton.Click += (s, e) =>
+            {
+                // reflect the preset in the sliders + preview, then apply
+                sliderRed.Value = r;
+                sliderGreen.Value = g;
+                sliderBlue.Value = b;
+                UpdatePreview();
+                blinkstick.SetColorAll(0, new byte[] { r, g, b });
+            };
+            presetsPanel.Children.Add(presetButton);
+        }
+
+        // Save config
+        var saveConfigButton = new Button
+        {
+            Content = "Save Config",
+            Width = 220,
+            Height = 40,
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center
+        };
+        saveConfigButton.Click += (s, e) =>
+        {
+            var config = new Config
+            {
+                StartupColor = new Tuple<int, int, int>((int)sliderRed.Value, (int)sliderGreen.Value, (int)sliderBlue.Value)
+            };
+            configWriter.Save(config);
+        };
+
+        // Turn off on exit
+        var turnOffSwitch = new ToggleSwitch
+        {
+            IsChecked = configWriter.loadedConfig.TurnOffOnExit == true
+        };
+        turnOffSwitch.IsCheckedChanged += (s, e) => SaveTurnOff(turnOffSwitch.IsChecked == true);
+
+        var turnOffRow = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+            Spacing = 12,
+            Margin = new Thickness(0, 18, 0, 0)
+        };
+        turnOffRow.Children.Add(new TextBlock
+        {
+            Text = "Turn off on exit",
+            FontSize = 14,
+            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+        });
+        turnOffRow.Children.Add(turnOffSwitch);
+
+        var root = new Border
+        {
+            Padding = new Thickness(24),
+            Child = new StackPanel
+            {
+                Spacing = 18,
+                Children =
+                {
+                    previewSwatch,
+                    slidersPanel,
+                    setColorButton,
+                    presetsHeader,
+                    presetsPanel,
+                    saveConfigButton,
+                    turnOffRow
+                }
+            }
+        };
+
+        Content = root;
+
+        UpdatePreview();
+
+        // Load config
+        Console.WriteLine("Loading config");
+        ApplyConfig(configWriter, blinkstick);
     }
-    public static void ApplyConfig(ConfigWriter configWriter, BlinkStickFlex blinkstick)
-    {   
+
+    private void BuildPreview()
+    {
+        previewHex = new TextBlock
+        {
+            FontSize = 26,
+            FontWeight = FontWeight.Bold,
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center
+        };
+        previewRgb = new TextBlock
+        {
+            FontSize = 14,
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center
+        };
+
+        previewSwatch = new Border
+        {
+            CornerRadius = new CornerRadius(14),
+            Padding = new Thickness(20, 18, 20, 18),
+            MinHeight = 96,
+            Background = new SolidColorBrush(MakeColor(0, 0, 0)),
+            BorderBrush = new SolidColorBrush(Color.FromUInt32(0xFFDDDDDD)),
+            BorderThickness = new Thickness(1),
+            Child = new StackPanel
+            {
+                Orientation = Orientation.Vertical,
+                Spacing = 4,
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center,
+                Children = { previewHex, previewRgb }
+            }
+        };
+    }
+
+    private StackPanel BuildSliders()
+    {
+        var panel = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+            Spacing = 28
+        };
+        panel.Children.Add(MakeSliderChannel("Red", out sliderRed, out valueRed));
+        panel.Children.Add(MakeSliderChannel("Green", out sliderGreen, out valueGreen));
+        panel.Children.Add(MakeSliderChannel("Blue", out sliderBlue, out valueBlue));
+
+        sliderRed.ValueChanged += (s, e) => UpdatePreview();
+        sliderGreen.ValueChanged += (s, e) => UpdatePreview();
+        sliderBlue.ValueChanged += (s, e) => UpdatePreview();
+
+        return panel;
+    }
+
+    private static StackPanel MakeSliderChannel(string label, out Slider slider, out TextBlock valueLabel)
+    {
+        slider = new Slider
+        {
+            Minimum = 0,
+            Maximum = 255,
+            Value = 0,
+            Width = 170
+        };
+        valueLabel = new TextBlock
+        {
+            Text = "0",
+            FontSize = 13,
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+            Margin = new Thickness(0, 4, 0, 0)
+        };
+        return new StackPanel
+        {
+            Orientation = Orientation.Vertical,
+            Spacing = 6,
+            Children =
+            {
+                new TextBlock
+                {
+                    Text = label,
+                    FontSize = 14,
+                    FontWeight = FontWeight.SemiBold,
+                    HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center
+                },
+                slider,
+                valueLabel
+            }
+        };
+    }
+
+    private void BuildSetColorButton()
+    {
+        setColorButton = new Button
+        {
+            Content = "Set Color",
+            Width = 220,
+            Height = 44,
+            FontSize = 16,
+            FontWeight = FontWeight.SemiBold,
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center
+        };
+        setColorButton.Click += (s, e) =>
+        {
+            blinkstick.SetColorAll(0, new byte[] { (byte)sliderRed.Value, (byte)sliderGreen.Value, (byte)sliderBlue.Value });
+        };
+    }
+
+    private void UpdatePreview()
+    {
+        var r = (byte)sliderRed.Value;
+        var g = (byte)sliderGreen.Value;
+        var b = (byte)sliderBlue.Value;
+        var color = MakeColor(r, g, b);
+        var contrast = Contrast(color);
+        var colorBrush = new SolidColorBrush(color);
+        var contrastBrush = new SolidColorBrush(contrast);
+
+        previewSwatch.Background = colorBrush;
+        previewHex.Foreground = contrastBrush;
+        previewRgb.Foreground = contrastBrush;
+        previewHex.Text = Hex(r, g, b);
+        previewRgb.Text = $"R {r}   G {g}   B {b}";
+
+        valueRed.Text = r.ToString();
+        valueGreen.Text = g.ToString();
+        valueBlue.Text = b.ToString();
+
+        setColorButton.Background = colorBrush;
+        setColorButton.Foreground = contrastBrush;
+    }
+
+    private static Color MakeColor(byte r, byte g, byte b) => Color.FromArgb(255, r, g, b);
+
+    private static string Hex(byte r, byte g, byte b) => $"#{r:X2}{g:X2}{b:X2}";
+
+    private static Color Contrast(Color c)
+    {
+        double lum = (0.299 * c.R + 0.587 * c.G + 0.114 * c.B) / 255.0;
+        return lum > 0.6 ? Color.FromUInt32(0xFF1A1A1A) : Color.FromUInt32(0xFFFFFFFF);
+    }
+
+    private void SaveTurnOff(bool on)
+    {
+        var config = configWriter.loadedConfig;
+        if (config == null)
+        {
+            return;
+        }
+        config.TurnOffOnExit = on;
+        configWriter.Save(config);
+    }
+
+    protected override void OnClosing(WindowClosingEventArgs e)
+    {
+        base.OnClosing(e);
+        if (configWriter.loadedConfig.TurnOffOnExit == true)
+        {
+            blinkstick.SetColorAll(0, new byte[] { 0, 0, 0 });
+        }
+
+        blinkstick.Shutdown();
+    }
+
+    private static void ApplyConfig(ConfigWriter configWriter, BlinkStickFlex blinkstick)
+    {
         Console.WriteLine("Applying config");
         var loadedConfig = configWriter.loadedConfig;
         if (loadedConfig == null)
@@ -50,188 +321,38 @@ public partial class MainWindow : Gtk.Window
             Console.WriteLine("No config found, using default values");
             return;
         }
-        if(loadedConfig.StartupColor == null)
+        if (loadedConfig.StartupColor == null)
         {
             Console.WriteLine("No startup color found, using default values");
             return;
         }
 
-
         blinkstick.SetColorAll(0, new byte[] { (byte)loadedConfig.StartupColor.Item1, (byte)loadedConfig.StartupColor.Item2, (byte)loadedConfig.StartupColor.Item3 });
     }
 
-    private Button AddButton(Layout layout, string text, int x, int y, int width, int height, EventHandler OnButtonClicked)
-    {
-        var button = new Gtk.Button(text);
-        button.WidthRequest = width;
-        button.HeightRequest = height;
-        button.Clicked += OnButtonClicked;
-        layout.Put(button, x, y);
-        return button;
-    }
-
-    [Obsolete]
-    private HScale AddSliderWithLabel(Layout layout, string label, int x, int y, int width, int height, int min, int max, int step, EventHandler OnValueChanged)
-    {
-        var labelWidget = new Gtk.Label(label);
-        labelWidget.WidthRequest = width;
-        labelWidget.HeightRequest = height;
-        layout.Put(labelWidget, x, y);
-
-        var slider = new HScale(min, max, step);
-        slider.WidthRequest = width;
-        slider.HeightRequest = height;
-
-        slider.ValueChanged += OnValueChanged;
-
-        layout.Put(slider, x, y + height);
-        return slider;
-    }
-
-    [Obsolete]
-    private void SetColorButtonTextColor()
-    {
-        if (setColorButton == null || SliderBlue == null || SliderGreen == null || SliderRed == null)
-        {
-            return;
-        }
-        var color = new byte[] {
-            (byte)SliderRed.Value,
-            (byte)SliderGreen.Value,
-            (byte)SliderBlue.Value
-        };
-        setColorButton.ModifyFg(StateType.Normal, new Gdk.Color(color[0], color[1], color[2]));
-    }
-
-    [Obsolete]
-    public MainWindow() : base(Gtk.WindowType.Toplevel)
-    {
-        // Set window properties
-        Title = "BlinkStick GTK Control Panel";
-        DefaultWidth = 600;
-        DefaultHeight = 400;
-
-        // Create scrolled window
-        scrolledWindow = new Gtk.ScrolledWindow();
-        scrolledWindow.HscrollbarPolicy = PolicyType.Never;
-        scrolledWindow.VscrollbarPolicy = PolicyType.Never;
-
-        // Create layout
-        layout = new Gtk.Layout(null, null);
-        layout.Width = 600;
-        layout.Height = 400;
-
-        SliderRed = AddSliderWithLabel(layout, "Red",     0, 0, 200, 25, 0, 255, 1, (sender, e) => {
-            SetColorButtonTextColor();
-        });
-        SliderGreen = AddSliderWithLabel(layout, "Green", 200, 0, 200, 25, 0, 255, 1, (sender, e) => {
-            SetColorButtonTextColor();
-        });
-        SliderBlue = AddSliderWithLabel(layout, "Blue",   400, 0, 200, 25, 0, 255, 1, (sender, e) => {
-            SetColorButtonTextColor();
-        });
-
-        setColorButton = AddButton(layout, "Set Color", 100, 75, 400, 25, (sender, e) => {
-            blinkstick.SetColorAll(0, new byte[] {
-                (byte)SliderRed.Value,
-                (byte)SliderGreen.Value,
-                (byte)SliderBlue.Value
-            });
-        });
-
-
-
-        Label label = new Label("Preset Colors");
-        // Center the label
-        label.SetSizeRequest(600, 25);
-        layout.Put(label, 0, 125);
-
-        // Add buttons for preset colors
-        for (int i = 0; i < presetColors.Count; i++)
-        {
-            var (colorName, color) = presetColors[i];
-            // Place buttons in a 4x2 grid, each button is 150x25, starting placements at (0, 100)
-            AddButton(layout, colorName, (i % 4) * 150, 150 + (i / 4) * 50, 150, 25, (sender, e) => {
-                blinkstick.SetColorAll(0, color);
-            });
-
-        }
-
-        // button to save config
-        AddButton(layout, "Save Config", 100, 300, 400, 25, (sender, e) => 
-        {
-            var config = new Config
-            {
-                StartupColor = new Tuple<int, int, int>((int)SliderRed.Value, (int)SliderGreen.Value, (int)SliderBlue.Value)
-            };
-            configWriter.Save(config);
-        });
-
-        Button saveOnExit = AddButton(layout, "Toggle Turn Off On Exit", 100, 350, 400, 25, (sender, e) => 
-        {
-            var config = configWriter.loadedConfig;
-            if (config == null || sender == null)
-            {
-                return;
-            }
-            config.TurnOffOnExit = !config.TurnOffOnExit;
-            configWriter.Save(config);
-            // Update button label by args (sender, e)
-            Button self = (Button)sender;
-            if(self != null)
-            {
-                self.Label = config.TurnOffOnExit == true ? "Turn Off On Exit: On" : "Turn Off On Exit: Off";
-            }
-            
-        });
-        saveOnExit.Label = configWriter.loadedConfig.TurnOffOnExit == true ? "Turn Off On Exit: On" : "Turn Off On Exit: Off";
-
-        scrolledWindow.Add(layout);
-        Add(scrolledWindow);
-
-        // Connect delete event
-        DeleteEvent += OnDeleteEvent;
-
-        // Load config
-        Console.WriteLine("Loading config");
-        ApplyConfig(configWriter, blinkstick);
-
-
-    }
-
-    protected void OnDeleteEvent(object sender, DeleteEventArgs a)
-    {
-        // Free resources and quit application
-        if (configWriter.loadedConfig.TurnOffOnExit == true)
-        {
-            blinkstick.SetColorAll(0, new byte[] { 0, 0, 0 }); 
-        }
-
-        blinkstick.Shutdown();
-
-        Gtk.Application.Quit();
-        a.RetVal = true;
-    }
-
-    [Obsolete]
+    [STAThread]
     public static void Main(string[] args)
     {
-        Gtk.Application.Init();
+        var appBuilder = AppBuilder.Configure<App>()
+            .UsePlatformDetect()
+            .LogToTrace();
+        appBuilder.StartWithClassicDesktopLifetime(args);
+    }
+}
 
-        if (!IsSuperuser())
+public class App : Application
+{
+    public override void Initialize()
+    {
+        Styles.Add(new FluentTheme());
+    }
+
+    public override void OnFrameworkInitializationCompleted()
+    {
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            // Show error popup
-            Console.WriteLine("Please run this program as superuser.");
-            ShowPopup("Please run this program as superuser.", "Error", Gtk.MessageType.Error);
-
-            return;
+            desktop.MainWindow = new MainWindow();
         }
-        MainWindow win = new MainWindow
-        {
-            // disable resizing
-            Resizable = false
-        };
-        win.ShowAll(); // Show all widgets
-        Gtk.Application.Run();
+        base.OnFrameworkInitializationCompleted();
     }
 }

@@ -27,6 +27,16 @@ public abstract class ControllerBase {
         _device.Write(msg);
     }
 
+    public bool DeviceValid()
+    {
+        return _device != null;
+    }
+
+    public string? DeviceProductName()
+    {
+        return _device?.GetProduct();
+    }
+
     public abstract void Shutdown();
     public ushort GetNumLeds()
     {

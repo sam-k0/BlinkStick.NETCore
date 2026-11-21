@@ -1,53 +1,36 @@
-using System.Diagnostics.Contracts;
-using System.Threading.Channels;
-using HidApi;
+using BlinkStickNETCore;
+
 public class BlinkstickController
 {
-    private const int VendorId = 0x20a0;
-    private const int ProductId = 0x41e5;
-    private const int MSG_PACKET_SIZE = 6;
-
-    private const int NUM_LEDS = 32;
-    private HidApi.Device _device;
+    private readonly BlinkStickFlex _blinkstick;
 
     public BlinkstickController()
     {
-        _device = new Device(VendorId, ProductId);
+        _blinkstick = new BlinkStickFlex();
     }
 
     public bool DeviceValid()
     {
-        return _device != null;
+        return _blinkstick.DeviceValid();
     }
 
-    public string DeviceProductName()
+    public string? DeviceProductName()
     {
-        return _device.GetProduct();
-    }
-
-    static byte[] BuildControlMessage(int channel, int index, byte[] color)
-    {
-        byte[] msg = [0x05, (byte)channel, (byte)index, color[0], color[1], color[2]];
-        return msg;
+        return _blinkstick.DeviceProductName();
     }
 
     public void SetColor(int channel, int num, byte[] color)
     {
-        byte[] msg = BuildControlMessage(channel, num, color);
-        _device.Write(msg);
+        _blinkstick.SetColor(channel, num, color);
     }
 
     public void SetColorAll(int channel, byte[] color)
     {
-        for (int i = 0; i < NUM_LEDS; i++)
-        {
-            SetColor(channel, i, color);
-        }
+        _blinkstick.SetColorAll(channel, color);
     }
 
     public void Shutdown()
     {
-        Hid.Exit();
+        _blinkstick.Shutdown();
     }
-
 }

@@ -10,10 +10,14 @@ public class BlinkStickFlex : ControllerBase
 
     public BlinkStickFlex()
     {
-        _device = new Device(VendorId, ProductId);
-        if (_device == null)
+
+        try
         {
-            throw new Exception("Device not found");
+            _device = new Device(VendorId, ProductId);
+        }
+        catch (Exception ex) 
+        {
+            System.Console.WriteLine(ex);
         }
     }
 
