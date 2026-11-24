@@ -5,11 +5,11 @@ Linux GUI for controlling a BlinkStick, built on **Avalonia 11** (Fluent theme).
 ## Overview
 
 Single window (`MainWindow : Window`) with:
-- R/G/B `Slider` controls (0–255), each with a label and a live value readout.
+- A `ColorPicker` control (from the `Avalonia.Controls.ColorPicker` package) for selecting the color.
 - A live preview swatch (rounded `Border`) showing the current color's hex + RGB text, with contrasting foreground.
 - A "Set Color" button → `blinkstick.SetColorAll(0, ...)`; the button's background is filled with the current color.
-- Preset swatch buttons (Red, Green, Blue, Yellow, Purple, Cyan, White, Off) in a `WrapPanel`; each is filled with its color and, on click, syncs the sliders/preview then applies.
-- "Save Config" — persists the current slider values as the startup color.
+- Preset swatch buttons (Red, Green, Blue, Yellow, Purple, Cyan, White, Off) in a `WrapPanel`; each is filled with its color and, on click, syncs the picker/preview then applies.
+- "Save Config" — persists the current picker color as the startup color.
 - A `ToggleSwitch` for "Turn off on exit" — persists `TurnOffOnExit` in the config.
 - On window close (`OnClosing`): if `TurnOffOnExit` is set, LEDs are turned off, then `blinkstick.Shutdown()`.
 

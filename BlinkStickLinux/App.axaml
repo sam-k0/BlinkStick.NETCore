@@ -3,6 +3,12 @@
              x:Class="BlinkStickLinux.App">
     <Application.Styles>
         <FluentTheme />
+        <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
+
+        <!-- Lighten the dark-mode window background (Fluent's default is near-black) -->
+        <Style Selector="Window">
+            <Setter Property="Background" Value="#FF454545" />
+        </Style>
 
         <!-- Center the button text -->
         <Style Selector="Button">

@@ -17,9 +17,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        sliderRed.ValueChanged += (s, e) => UpdatePreview();
-        sliderGreen.ValueChanged += (s, e) => UpdatePreview();
-        sliderBlue.ValueChanged += (s, e) => UpdatePreview();
+        colorPicker.ColorChanged += (s, e) => UpdatePreview();
         setColorButton.Click += SetColor_Click;
         saveConfigButton.Click += SaveConfig_Click;
 
@@ -35,7 +33,16 @@ public partial class MainWindow : Window
 
     private void SetColor_Click(object? sender, RoutedEventArgs e)
     {
-        blinkstick.SetColorAll(0, new byte[] { (byte)sliderRed.Value, (byte)sliderGreen.Value, (byte)sliderBlue.Value });
+        var c = colorPicker.Color;
+        try
+        {
+            blinkstick.SetColorAll(0, new byte[] { c.R, c.G, c.B });
+            SetStatus("Color applied.");
+        }
+        catch (Exception ex)
+        {
+            SetStatus($"Could not set color: {ex.Message}");
+        }
     }
 
     private void Preset_Click(object? sender, RoutedEventArgs e)
@@ -50,12 +57,18 @@ public partial class MainWindow : Window
         byte g = byte.Parse(parts[1]);
         byte b = byte.Parse(parts[2]);
 
-        // reflect the preset in the sliders + preview, then apply
-        sliderRed.Value = r;
-        sliderGreen.Value = g;
-        sliderBlue.Value = b;
+        // reflect the preset in the picker + preview, then apply
+        colorPicker.Color = MakeColor(r, g, b);
         UpdatePreview();
-        blinkstick.SetColorAll(0, new byte[] { r, g, b });
+        try
+        {
+            blinkstick.SetColorAll(0, new byte[] { r, g, b });
+            SetStatus("Color applied.");
+        }
+        catch (Exception ex)
+        {
+            SetStatus($"Could not set color: {ex.Message}");
+        }
     }
 
     private void SaveConfig_Click(object? sender, RoutedEventArgs e)
@@ -63,15 +76,26 @@ public partial class MainWindow : Window
         // Save into the loaded config so TurnOffOnExit is preserved and the
         // in-memory copy stays in sync with the file.
         var config = configWriter.loadedConfig;
-        config.StartupColor = new Tuple<int, int, int>((int)sliderRed.Value, (int)sliderGreen.Value, (int)sliderBlue.Value);
-        configWriter.Save(config);
+        var c = colorPicker.Color;
+        config.StartupColor = new Tuple<int, int, int>(c.R, c.G, c.B);
+
+        try
+        {
+            configWriter.Save(config);
+            SetStatus("Config saved.");
+        }
+        catch (Exception ex)
+        {
+            SetStatus($"Could not save config: {ex.Message}");
+        }
     }
 
     private void UpdatePreview()
     {
-        var r = (byte)sliderRed.Value;
-        var g = (byte)sliderGreen.Value;
-        var b = (byte)sliderBlue.Value;
+        var c = colorPicker.Color;
+        var r = c.R;
+        var g = c.G;
+        var b = c.B;
         var color = MakeColor(r, g, b);
         var contrast = Contrast(color);
         var colorBrush = new SolidColorBrush(color);
@@ -82,10 +106,6 @@ public partial class MainWindow : Window
         previewRgb.Foreground = contrastBrush;
         previewHex.Text = Hex(r, g, b);
         previewRgb.Text = $"R {r}   G {g}   B {b}";
-
-        valueRed.Text = r.ToString();
-        valueGreen.Text = g.ToString();
-        valueBlue.Text = b.ToString();
 
         setColorButton.Background = colorBrush;
         setColorButton.Foreground = contrastBrush;
@@ -109,7 +129,20 @@ public partial class MainWindow : Window
             return;
         }
         config.TurnOffOnExit = on;
-        configWriter.Save(config);
+        try
+        {
+            configWriter.Save(config);
+        }
+        catch (Exception ex)
+        {
+            SetStatus($"Could not save config: {ex.Message}");
+        }
+    }
+
+    private void SetStatus(string message)
+    {
+        statusText.Text = message;
+        statusText.Foreground = new SolidColorBrush(Color.FromUInt32(0xFF1A1A1A));
     }
 
     protected override void OnClosing(WindowClosingEventArgs e)
@@ -117,7 +150,14 @@ public partial class MainWindow : Window
         base.OnClosing(e);
         if (configWriter.loadedConfig.TurnOffOnExit == true)
         {
-            blinkstick.SetColorAll(0, new byte[] { 0, 0, 0 });
+            try
+            {
+                blinkstick.SetColorAll(0, new byte[] { 0, 0, 0 });
+            }
+            catch
+            {
+                // Best-effort on exit; don't block shutdown.
+            }
         }
 
         blinkstick.Shutdown();
@@ -138,12 +178,17 @@ public partial class MainWindow : Window
             return;
         }
 
-        // Reflect the startup color in the sliders so the preview matches.
-        sliderRed.Value = loadedConfig.StartupColor.Item1;
-        sliderGreen.Value = loadedConfig.StartupColor.Item2;
-        sliderBlue.Value = loadedConfig.StartupColor.Item3;
+        // Reflect the startup color in the picker so the preview matches.
+        colorPicker.Color = MakeColor((byte)loadedConfig.StartupColor.Item1, (byte)loadedConfig.StartupColor.Item2, (byte)loadedConfig.StartupColor.Item3);
         UpdatePreview();
 
-        blinkstick.SetColorAll(0, new byte[] { (byte)loadedConfig.StartupColor.Item1, (byte)loadedConfig.StartupColor.Item2, (byte)loadedConfig.StartupColor.Item3 });
+        try
+        {
+            blinkstick.SetColorAll(0, new byte[] { (byte)loadedConfig.StartupColor.Item1, (byte)loadedConfig.StartupColor.Item2, (byte)loadedConfig.StartupColor.Item3 });
+        }
+        catch (Exception ex)
+        {
+            SetStatus($"Could not set startup color: {ex.Message}");
+        }
     }
 }

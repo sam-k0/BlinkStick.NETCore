@@ -6,186 +6,142 @@
         Height="760"
         MinWidth="560">
 
-    <Border Padding="24">
-        <StackPanel Spacing="18">
+        <Border Padding="24">
+                <StackPanel Spacing="18">
 
-            <!-- Live color preview -->
-            <Border x:Name="previewSwatch"
-                    CornerRadius="14"
-                    Padding="20,18,20,18"
-                    MinHeight="96"
-                    Background="#FF000000"
-                    BorderBrush="#FFDDDDDD"
-                    BorderThickness="1">
-                <StackPanel Spacing="4"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center">
-                    <TextBlock x:Name="previewHex"
-                               FontSize="26"
-                               FontWeight="Bold"
-                               HorizontalAlignment="Center" />
-                    <TextBlock x:Name="previewRgb"
-                               FontSize="14"
-                               HorizontalAlignment="Center" />
+                        <!-- Live color preview -->
+                        <Border x:Name="previewSwatch"
+                                CornerRadius="14"
+                                Padding="20,18,20,18"
+                                MinHeight="96"
+                                Background="#FF000000"
+                                BorderBrush="#FFDDDDDD"
+                                BorderThickness="1">
+                                <StackPanel Spacing="4"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center">
+                                        <TextBlock x:Name="previewHex"
+                                                   FontSize="26"
+                                                   FontWeight="Bold"
+                                                   HorizontalAlignment="Center" />
+                                        <TextBlock x:Name="previewRgb"
+                                                   FontSize="14"
+                                                   HorizontalAlignment="Center" />
+                                </StackPanel>
+                        </Border>
+
+                        <!-- Color picker -->
+                        <ColorPicker x:Name="colorPicker"
+                                     Width="220"
+                                     Height="44"
+                                     HorizontalAlignment="Center" />
+
+                        <!-- Apply current color -->
+                        <Button x:Name="setColorButton"
+                                Content="Set Color"
+                                Width="220"
+                                Height="44"
+                                FontSize="16"
+                                FontWeight="SemiBold"
+                                HorizontalAlignment="Center" />
+
+                        <!-- Presets: Tag carries the RGB values, applied on click -->
+                        <TextBlock Text="Presets"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   Margin="2,12,0,0" />
+
+                        <WrapPanel Orientation="Horizontal">
+                                <Button Content="Red"
+                                        Width="132"
+                                        Height="56"
+                                        Margin="6"
+                                        Background="#FFFF0000"
+                                        Foreground="#FFFFFFFF"
+                                        Tag="255,0,0"
+                                        Click="Preset_Click" />
+                                <Button Content="Green"
+                                        Width="132"
+                                        Height="56"
+                                        Margin="6"
+                                        Background="#FF00FF00"
+                                        Foreground="#FFFFFFFF"
+                                        Tag="0,255,0"
+                                        Click="Preset_Click" />
+                                <Button Content="Blue"
+                                        Width="132"
+                                        Height="56"
+                                        Margin="6"
+                                        Background="#FF0000FF"
+                                        Foreground="#FFFFFFFF"
+                                        Tag="0,0,255"
+                                        Click="Preset_Click" />
+                                <Button Content="Yellow"
+                                        Width="132"
+                                        Height="56"
+                                        Margin="6"
+                                        Background="#FFFFFF00"
+                                        Foreground="#FF1A1A1A"
+                                        Tag="255,255,0"
+                                        Click="Preset_Click" />
+                                <Button Content="Purple"
+                                        Width="132"
+                                        Height="56"
+                                        Margin="6"
+                                        Background="#FFFF00FF"
+                                        Foreground="#FFFFFFFF"
+                                        Tag="255,0,255"
+                                        Click="Preset_Click" />
+                                <Button Content="Cyan"
+                                        Width="132"
+                                        Height="56"
+                                        Margin="6"
+                                        Background="#FF00FFFF"
+                                        Foreground="#FF1A1A1A"
+                                        Tag="0,255,255"
+                                        Click="Preset_Click" />
+                                <Button Content="White"
+                                        Width="132"
+                                        Height="56"
+                                        Margin="6"
+                                        Background="#FFFFFFFF"
+                                        Foreground="#FF1A1A1A"
+                                        Tag="255,255,255"
+                                        Click="Preset_Click" />
+                                <Button Content="Off"
+                                        Width="132"
+                                        Height="56"
+                                        Margin="6"
+                                        Background="#FF000000"
+                                        Foreground="#FFFFFFFF"
+                                        Tag="0,0,0"
+                                        Click="Preset_Click" />
+                        </WrapPanel>
+
+                        <!-- Save config -->
+                        <Button x:Name="saveConfigButton"
+                                Content="Save Config"
+                                Width="220"
+                                Height="40"
+                                HorizontalAlignment="Center" />
+
+                        <!-- Status line for save results -->
+                        <TextBlock x:Name="statusText"
+                                   FontSize="14"
+                                   HorizontalAlignment="Center"
+                                   TextWrapping="Wrap" />
+
+                        <!-- Turn off on exit -->
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    Spacing="12"
+                                    Margin="0,18,0,0">
+                                <TextBlock Text="Turn off on exit"
+                                           FontSize="14"
+                                           VerticalAlignment="Center" />
+                                <ToggleSwitch x:Name="turnOffSwitch" />
+                        </StackPanel>
+
                 </StackPanel>
-            </Border>
-
-            <!-- R/G/B sliders -->
-            <StackPanel Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        Spacing="28">
-                <StackPanel Spacing="6">
-                    <TextBlock Text="Red"
-                               FontSize="14"
-                               FontWeight="SemiBold"
-                               HorizontalAlignment="Center" />
-                    <Slider x:Name="sliderRed"
-                            Minimum="0"
-                            Maximum="255"
-                            Value="0"
-                            Width="170" />
-                    <TextBlock x:Name="valueRed"
-                               Text="0"
-                               FontSize="13"
-                               HorizontalAlignment="Center"
-                               Margin="0,4,0,0" />
-                </StackPanel>
-
-                <StackPanel Spacing="6">
-                    <TextBlock Text="Green"
-                               FontSize="14"
-                               FontWeight="SemiBold"
-                               HorizontalAlignment="Center" />
-                    <Slider x:Name="sliderGreen"
-                            Minimum="0"
-                            Maximum="255"
-                            Value="0"
-                            Width="170" />
-                    <TextBlock x:Name="valueGreen"
-                               Text="0"
-                               FontSize="13"
-                               HorizontalAlignment="Center"
-                               Margin="0,4,0,0" />
-                </StackPanel>
-
-                <StackPanel Spacing="6">
-                    <TextBlock Text="Blue"
-                               FontSize="14"
-                               FontWeight="SemiBold"
-                               HorizontalAlignment="Center" />
-                    <Slider x:Name="sliderBlue"
-                            Minimum="0"
-                            Maximum="255"
-                            Value="0"
-                            Width="170" />
-                    <TextBlock x:Name="valueBlue"
-                               Text="0"
-                               FontSize="13"
-                               HorizontalAlignment="Center"
-                               Margin="0,4,0,0" />
-                </StackPanel>
-            </StackPanel>
-
-            <!-- Apply current color -->
-            <Button x:Name="setColorButton"
-                    Content="Set Color"
-                    Width="220"
-                    Height="44"
-                    FontSize="16"
-                    FontWeight="SemiBold"
-                    HorizontalAlignment="Center" />
-
-            <!-- Presets: Tag carries the RGB values, applied on click -->
-            <TextBlock Text="Presets"
-                       FontSize="14"
-                       FontWeight="SemiBold"
-                       Margin="2,12,0,0" />
-
-            <WrapPanel Orientation="Horizontal">
-                <Button Content="Red"
-                        Width="132"
-                        Height="56"
-                        Margin="6"
-                        Background="#FFFF0000"
-                        Foreground="#FFFFFFFF"
-                        Tag="255,0,0"
-                        Click="Preset_Click" />
-                <Button Content="Green"
-                        Width="132"
-                        Height="56"
-                        Margin="6"
-                        Background="#FF00FF00"
-                        Foreground="#FFFFFFFF"
-                        Tag="0,255,0"
-                        Click="Preset_Click" />
-                <Button Content="Blue"
-                        Width="132"
-                        Height="56"
-                        Margin="6"
-                        Background="#FF0000FF"
-                        Foreground="#FFFFFFFF"
-                        Tag="0,0,255"
-                        Click="Preset_Click" />
-                <Button Content="Yellow"
-                        Width="132"
-                        Height="56"
-                        Margin="6"
-                        Background="#FFFFFF00"
-                        Foreground="#FF1A1A1A"
-                        Tag="255,255,0"
-                        Click="Preset_Click" />
-                <Button Content="Purple"
-                        Width="132"
-                        Height="56"
-                        Margin="6"
-                        Background="#FFFF00FF"
-                        Foreground="#FFFFFFFF"
-                        Tag="255,0,255"
-                        Click="Preset_Click" />
-                <Button Content="Cyan"
-                        Width="132"
-                        Height="56"
-                        Margin="6"
-                        Background="#FF00FFFF"
-                        Foreground="#FF1A1A1A"
-                        Tag="0,255,255"
-                        Click="Preset_Click" />
-                <Button Content="White"
-                        Width="132"
-                        Height="56"
-                        Margin="6"
-                        Background="#FFFFFFFF"
-                        Foreground="#FF1A1A1A"
-                        Tag="255,255,255"
-                        Click="Preset_Click" />
-                <Button Content="Off"
-                        Width="132"
-                        Height="56"
-                        Margin="6"
-                        Background="#FF000000"
-                        Foreground="#FFFFFFFF"
-                        Tag="0,0,0"
-                        Click="Preset_Click" />
-            </WrapPanel>
-
-            <!-- Save config -->
-            <Button x:Name="saveConfigButton"
-                    Content="Save Config"
-                    Width="220"
-                    Height="40"
-                    HorizontalAlignment="Center" />
-
-            <!-- Turn off on exit -->
-            <StackPanel Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        Spacing="12"
-                        Margin="0,18,0,0">
-                <TextBlock Text="Turn off on exit"
-                           FontSize="14"
-                           VerticalAlignment="Center" />
-                <ToggleSwitch x:Name="turnOffSwitch" />
-            </StackPanel>
-
-        </StackPanel>
-    </Border>
+        </Border>
 </Window>
