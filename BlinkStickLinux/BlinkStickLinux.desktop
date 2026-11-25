@@ -2,7 +2,7 @@
 Name=BlinkStick
 Comment=Control your BlinkStick LED device
 Exec=BlinkStickLinux
-Icon=io.github.sam-k0.BlinkStickLinux
+Icon=eu.samk0.BlinkStickLinux
 Type=Application
 Categories=Utility;
 StartupWMClass=BlinkStickLinux
