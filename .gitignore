@@ -397,3 +397,4 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 BlinkStickLinux/visual.py
+/.flatpak-builder

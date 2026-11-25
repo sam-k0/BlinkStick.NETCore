@@ -12,9 +12,17 @@ public class ConfigWriter
 
     private string GetApplicationPath()
     {
-        var process = Process.GetCurrentProcess();
-        var path = process.MainModule.FileName;
-        return Path.GetDirectoryName(path);
+        // Store config in the user's config directory (XDG), not next to the
+        // executable. In Flatpak /app is read-only, and under `dotnet run`
+        // MainModule points at the dotnet host.
+        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var configHome = Environment.GetEnvironmentVariable("XDG_CONFIG_HOME");
+        var dir = string.IsNullOrWhiteSpace(configHome)
+            ? Path.Combine(home, ".config")
+            : configHome;
+        dir = Path.Combine(dir, "BlinkStickLinux");
+        Directory.CreateDirectory(dir);
+        return dir;
     }
 
 
